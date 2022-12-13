@@ -9,7 +9,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import voteplus.VotePlusDownloader.service.TMDBService;
+import voteplus.VotePlusDownloader.exception.ApiClientException;
+import voteplus.VotePlusDownloader.service.ApiClientTMDB;
 import voteplus.VotePlusDownloader.utils.TMDBConstants;
 
 import java.util.ArrayList;
@@ -20,23 +21,27 @@ import java.util.List;
 @RequestMapping("/manual-test-call")
 public class ApiController {
 
-    private final TMDBService tmdbService;
+    private final ApiClientTMDB tmdbService;
 
     @Value("${tmdb.api.key.v3}")
     private String TMDB_API_KEY_V3;
 
     @Autowired
-    public ApiController(TMDBService tmdbService) {
+    public ApiController(ApiClientTMDB tmdbService) {
         this.tmdbService = tmdbService;
     }
 
     @GetMapping("/netflix-call")
-    private ResponseEntity<String> testNetflixCall(){
+    private ResponseEntity<?> testNetflixCall(){
         List<String> pathVariable = new ArrayList<>();
         pathVariable.add(TMDBConstants.SEARCH);
         pathVariable.add(TMDBConstants.MOVIE);
         MultiValueMap<String,String> stringStringMultiValueMap = new LinkedMultiValueMap<>();
         stringStringMultiValueMap.add(TMDBConstants.QUERY, TMDBConstants.NETFLIX);
-        return ResponseEntity.ok(tmdbService.callServiceV3(pathVariable, stringStringMultiValueMap));
+        try {
+            return ResponseEntity.ok(tmdbService.callServiceV3(pathVariable, stringStringMultiValueMap));
+        } catch (ApiClientException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
