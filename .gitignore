@@ -1,3 +1,6 @@
+#For local env we need to not add dev properties
+application-local-dev.properties
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
